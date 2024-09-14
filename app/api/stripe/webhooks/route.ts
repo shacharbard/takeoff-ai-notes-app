@@ -3,23 +3,36 @@ import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import Stripe from "stripe";
 
-const relevantEvents = new Set(["checkout.session.completed", "customer.subscription.updated", "customer.subscription.deleted"]);
+const relevantEvents = new Set([
+  "checkout.session.completed",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+]);
+
+async function verifyStripeWebhook(req: Request): Promise<Stripe.Event> {
+  const body = await req.text();
+  const sig = headers().get("Stripe-Signature");
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  if (!sig || !webhookSecret) {
+    throw new Error("Webhook secret or signature missing");
+  }
+
+  return stripe.webhooks.constructEvent(body, sig, webhookSecret);
+}
 
 export async function POST(req: Request) {
-  const body = await req.text();
-  const sig = headers().get("Stripe-Signature") as string;
-  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
   let event: Stripe.Event;
 
   try {
-    if (!sig || !webhookSecret) {
-      throw new Error("Webhook secret or signature missing");
+    event = await verifyStripeWebhook(req);
+  } catch (err: unknown) {
+    let message = "Webhook Error";
+    if (err instanceof Error) {
+      message = err.message;
     }
-
-    event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
-  } catch (err: any) {
-    console.error(`Webhook Error: ${err.message}`);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    console.error(message);
+    return new Response(message, { status: 400 });
   }
 
   if (relevantEvents.has(event.type)) {
@@ -39,8 +52,8 @@ export async function POST(req: Request) {
       }
     } catch (error) {
       console.error("Webhook handler failed:", error);
-      return new Response("Webhook handler failed. View your nextjs function logs.", {
-        status: 400
+      return new Response("Webhook handler failed. View your Next.js function logs.", {
+        status: 400,
       });
     }
   }
@@ -58,10 +71,14 @@ async function handleCheckoutSession(event: Stripe.Event) {
   const checkoutSession = event.data.object as Stripe.Checkout.Session;
   if (checkoutSession.mode === "subscription") {
     const subscriptionId = checkoutSession.subscription as string;
-    await updateStripeCustomer(checkoutSession.client_reference_id as string, subscriptionId, checkoutSession.customer as string);
+    await updateStripeCustomer(
+      checkoutSession.client_reference_id as string,
+      subscriptionId,
+      checkoutSession.customer as string
+    );
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId, {
-      expand: ["default_payment_method"]
+      expand: ["default_payment_method"],
     });
 
     const productId = subscription.items.data[0].price.product as string;
