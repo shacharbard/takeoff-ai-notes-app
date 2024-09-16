@@ -11,10 +11,18 @@ type NotesSidebarProps = {
   selectedNoteId?: string;
   onNoteSelect: (note: SelectNote) => void;
   onNotesChange: (notes: SelectNote[]) => void;
-  className?: string;
+  width: number;
+  onResizeStart: () => void;
 };
 
-export default function NotesSidebar({ notes, selectedNoteId, onNoteSelect, onNotesChange, className }: NotesSidebarProps) {
+export default function NotesSidebar({ 
+  notes, 
+  selectedNoteId, 
+  onNoteSelect, 
+  onNotesChange, 
+  width,
+  onResizeStart 
+}: NotesSidebarProps) {
   const handleDeleteNote = async (id: string) => {
     const result = await deleteNoteAction(id);
     if (result.status === "success") {
@@ -22,53 +30,67 @@ export default function NotesSidebar({ notes, selectedNoteId, onNoteSelect, onNo
     }
   };
 
+  const truncateContent = (content: string, maxLength: number) => {
+    if (content.length <= maxLength) return content;
+    return content.slice(0, maxLength) + '...';
+  };
+
+  // Sort notes by creation date, most recent first
+  const sortedNotes = [...notes].sort((a, b) => 
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+
   return (
-    <div className={`bg-gray-900 p-4 flex flex-col h-full ${className}`}>
+    <div 
+      className="bg-gray-900 p-4 flex flex-col h-full relative" 
+      style={{ width: `${width}px` }}
+    >
       <h2 className="text-xl font-bold mb-4 text-white">Your Notes</h2>
       <ScrollArea className="flex-1">
-        <ul className="space-y-2">
-          {notes.map(note => (
+        <ul className="space-y-4">
+          {sortedNotes.map(note => (
             <li key={note.id} 
-                className={`flex flex-col p-2 rounded cursor-pointer hover:bg-gray-800 ${
-                  note.id === selectedNoteId ? 'bg-gray-800' : ''
+                className={`bg-gray-800 rounded-lg p-2 cursor-pointer hover:bg-gray-700 transition-colors w-[100px] h-[100px] flex flex-col ${
+                  note.id === selectedNoteId ? 'ring-2 ring-blue-500' : ''
                 }`}
+                onClick={() => onNoteSelect(note)}
             >
-              <div className="flex items-start justify-between w-full">
-                <span 
-                  className="text-gray-300 break-words w-full mr-2"
-                  onClick={() => onNoteSelect(note)}
+              <h3 className="text-sm font-semibold text-white mb-1 truncate">{note.title}</h3>
+              <p className="text-gray-400 text-xs flex-grow overflow-hidden">
+                {truncateContent(note.content, 25)}
+              </p>
+              <div className="flex justify-end mt-auto space-x-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNoteSelect(note);
+                  }} 
+                  className="h-6 w-6 p-0 text-gray-400 hover:text-blue-500"
                 >
-                  {note.title}
-                </span>
-                <div className="flex items-center space-x-1 flex-shrink-0">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onNoteSelect(note);
-                    }} 
-                    className="h-8 w-8 text-gray-500 hover:text-blue-500"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteNote(note.id);
-                    }} 
-                    className="h-8 w-8 text-gray-500 hover:text-red-500"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
+                  <Pencil className="h-3 w-3" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteNote(note.id);
+                  }} 
+                  className="h-6 w-6 p-0 text-gray-400 hover:text-red-500"
+                >
+                  <Trash className="h-3 w-3" />
+                </Button>
               </div>
             </li>
           ))}
         </ul>
       </ScrollArea>
+      <div 
+        className="absolute top-0 right-0 w-1 h-full cursor-col-resize bg-gray-700 hover:bg-gray-600"
+        onMouseDown={onResizeStart}
+      />
     </div>
   );
 }

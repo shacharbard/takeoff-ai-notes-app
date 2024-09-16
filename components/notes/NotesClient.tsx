@@ -3,6 +3,7 @@
 import { createNoteAction, getNotesByUserIdAction } from "@/actions/notes-actions";
 import { Button } from "@/components/ui/button";
 import { SelectNote } from "@/db/schema";
+import { useResizable } from "@/hooks/useResizable";
 import { useAuth } from "@clerk/nextjs";
 import { useState } from "react";
 import NoteContent from "./NoteContent";
@@ -16,6 +17,7 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
   const [notes, setNotes] = useState(initialNotes);
   const [selectedNote, setSelectedNote] = useState<SelectNote | undefined>(notes[0]);
   const { userId } = useAuth();
+  const { width: sidebarWidth, startResizing } = useResizable(320, 200, 500);
 
   const handleNoteUpdate = async (updatedNote: SelectNote) => {
     setNotes(prevNotes => [...prevNotes.filter(note => note.id !== updatedNote.id), updatedNote]);
@@ -56,7 +58,8 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
         selectedNoteId={selectedNote?.id}
         onNoteSelect={handleNoteSelect}
         onNotesChange={handleNotesChange}
-        className="w-80 border-r border-gray-700 bg-gray-900"
+        width={sidebarWidth}
+        onResizeStart={startResizing}
       />
       <div className="flex-1 flex flex-col h-full bg-black text-white">
         <div className="p-4">
