@@ -75,7 +75,7 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
           <Button onClick={toggleSidebar} className="md:hidden bg-[#1F2937] hover:bg-gray-800">
             {isSidebarVisible ? 'Hide Notes' : 'Show Notes'}
           </Button>
-          <Button onClick={handleCreateNote} className="bg-[#1F2937] hover:bg-gray-800">
+          <Button onClick={handleCreateNote} className="bg-[#1F2937] hover:bg-gray-800 text-white">
             Create New Note
           </Button>
         </div>

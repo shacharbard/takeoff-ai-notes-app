@@ -81,7 +81,7 @@ export default function NoteContent({ selectedNote, onNoteUpdate }: NoteContentP
         <Button 
           onClick={handleSaveNote} 
           disabled={isSaving} 
-          className="bg-[#1F2937] hover:bg-gray-800 px-8 py-2 self-center w-full md:w-auto"
+          className="bg-[#1F2937] hover:bg-gray-800 px-8 py-2 self-center w-full md:w-auto text-white"
         >
           {isSaving ? "Saving..." : "Save Note"}
         </Button>
