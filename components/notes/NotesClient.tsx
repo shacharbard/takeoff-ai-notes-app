@@ -56,15 +56,15 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
         selectedNoteId={selectedNote?.id}
         onNoteSelect={handleNoteSelect}
         onNotesChange={handleNotesChange}
-        className="w-80 border-r border-gray-700 bg-gray-900" // Increased width to w-80
+        className="w-80 border-r border-gray-700 bg-gray-900"
       />
-      <div className="flex-1 flex flex-col p-4 bg-black text-white">
-        <div className="flex justify-between items-center mb-4">
+      <div className="flex-1 flex flex-col h-full bg-black text-white">
+        <div className="p-4">
           <Button onClick={handleCreateNote} className="bg-[#1F2937] hover:bg-gray-800">
             Create New Note
           </Button>
         </div>
-        <div className="flex-1">
+        <div className="flex-1 overflow-hidden">
           <NoteContent 
             selectedNote={selectedNote || { 
               id: '', 
