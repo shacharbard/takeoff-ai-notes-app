@@ -72,7 +72,7 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
       </div>
       <div className="flex-1 flex flex-col h-full bg-black text-white">
         <div className="p-4 flex justify-between items-center">
-          <Button onClick={toggleSidebar} className="md:hidden bg-[#1F2937] hover:bg-gray-800">
+          <Button onClick={toggleSidebar} className="md:hidden bg-[#1F2937] hover:bg-gray-800 text-white">
             {isSidebarVisible ? 'Hide Notes' : 'Show Notes'}
           </Button>
           <Button onClick={handleCreateNote} className="bg-[#1F2937] hover:bg-gray-800 text-white">
