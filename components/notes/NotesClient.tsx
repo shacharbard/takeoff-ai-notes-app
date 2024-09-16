@@ -17,16 +17,18 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
   const [notes, setNotes] = useState(initialNotes);
   const [selectedNote, setSelectedNote] = useState<SelectNote | undefined>(notes[0]);
   const { userId } = useAuth();
-  const { width: sidebarWidth, startResizing } = useResizable(320, 200, 500);
+  const { width: sidebarWidth, startResizing } = useResizable(150, 150, 300); // Adjusted initial and min width
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
 
   const handleNoteUpdate = async (updatedNote: SelectNote) => {
     setNotes(prevNotes => [...prevNotes.filter(note => note.id !== updatedNote.id), updatedNote]);
-    setSelectedNote(undefined); // Clear the selected note after saving
+    setSelectedNote(undefined);
     await refreshNotes();
   };
 
   const handleNoteSelect = (note: SelectNote) => {
     setSelectedNote(note);
+    setIsSidebarVisible(false); // Hide sidebar on mobile when a note is selected
   };
 
   const handleNotesChange = (newNotes: SelectNote[]) => {
@@ -40,6 +42,7 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
     if (result.status === "success" && result.data) {
       await refreshNotes();
       setSelectedNote(result.data);
+      setIsSidebarVisible(false); // Hide sidebar on mobile when creating a new note
     }
   };
 
@@ -51,18 +54,27 @@ export default function NotesClient({ initialNotes }: NotesClientProps) {
     }
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarVisible(!isSidebarVisible);
+  };
+
   return (
     <div className="flex h-screen">
-      <NotesSidebar 
-        notes={notes} 
-        selectedNoteId={selectedNote?.id}
-        onNoteSelect={handleNoteSelect}
-        onNotesChange={handleNotesChange}
-        width={sidebarWidth}
-        onResizeStart={startResizing}
-      />
+      <div className={`md:block ${isSidebarVisible ? 'block' : 'hidden'}`} style={{ width: `${sidebarWidth}px` }}>
+        <NotesSidebar 
+          notes={notes} 
+          selectedNoteId={selectedNote?.id}
+          onNoteSelect={handleNoteSelect}
+          onNotesChange={handleNotesChange}
+          width={sidebarWidth}
+          onResizeStart={startResizing}
+        />
+      </div>
       <div className="flex-1 flex flex-col h-full bg-black text-white">
-        <div className="p-4">
+        <div className="p-4 flex justify-between items-center">
+          <Button onClick={toggleSidebar} className="md:hidden bg-[#1F2937] hover:bg-gray-800">
+            {isSidebarVisible ? 'Hide Notes' : 'Show Notes'}
+          </Button>
           <Button onClick={handleCreateNote} className="bg-[#1F2937] hover:bg-gray-800">
             Create New Note
           </Button>

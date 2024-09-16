@@ -62,8 +62,8 @@ export default function NoteContent({ selectedNote, onNoteUpdate }: NoteContentP
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="w-full max-w-[500px] mx-auto flex-grow flex flex-col">
+    <div className="flex flex-col h-full p-4 overflow-auto">
+      <div className="w-full max-w-[500px] mx-auto flex flex-col">
         <Input
           type="text"
           value={note.title}
@@ -74,13 +74,14 @@ export default function NoteContent({ selectedNote, onNoteUpdate }: NoteContentP
         <Textarea
           value={note.content}
           onChange={e => setNote({ ...note, content: e.target.value })}
-          className="h-[500px] w-full resize-none bg-gray-800 border-gray-700 text-white overflow-auto mb-4"
+          className="flex-grow mb-4 resize-none bg-gray-800 border-gray-700 text-white overflow-auto"
+          style={{ height: 'calc(100vh - 300px)' }}
           placeholder="Note content"
         />
         <Button 
           onClick={handleSaveNote} 
           disabled={isSaving} 
-          className="bg-[#1F2937] hover:bg-gray-800 px-8 py-2 self-center"
+          className="bg-[#1F2937] hover:bg-gray-800 px-8 py-2 self-center w-full md:w-auto"
         >
           {isSaving ? "Saving..." : "Save Note"}
         </Button>

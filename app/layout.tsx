@@ -9,7 +9,6 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
-
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -41,19 +40,27 @@ export default async function RootLayout({
   }
 
   return (
-      <html lang="en" className="dark">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+    <html lang="en" className="dark">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-          <ClerkProvider>
-            <Providers attribute="class" disableTransitionOnChange>
+        <ClerkProvider>
+          <Providers
+            attribute="class"
+            defaultTheme="dark"
+            enableSystem={false}
+            disableTransitionOnChange
+          >
+            <div className="flex flex-col h-screen">
               <Header />
-              {children}
-              <Toaster />
-            </Providers>
-          </ClerkProvider>
-        </body>
-      </html>
-      
+              <main className="flex-1 overflow-hidden">
+                {children}
+              </main>
+            </div>
+            <Toaster />
+          </Providers>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

@@ -21,7 +21,7 @@ export default function NotesSidebar({
   onNoteSelect, 
   onNotesChange, 
   width,
-  onResizeStart 
+  onResizeStart
 }: NotesSidebarProps) {
   const handleDeleteNote = async (id: string) => {
     const result = await deleteNoteAction(id);
@@ -42,20 +42,20 @@ export default function NotesSidebar({
 
   return (
     <div 
-      className="bg-gray-900 p-4 flex flex-col h-full relative" 
+      className="bg-gray-900 p-2 flex flex-col h-full relative" 
       style={{ width: `${width}px` }}
     >
-      <h2 className="text-xl font-bold mb-4 text-white">Your Notes</h2>
+      <h2 className="text-lg font-bold mb-2 text-white">Your Notes</h2>
       <ScrollArea className="flex-1">
-        <ul className="space-y-4">
+        <ul className="space-y-2">
           {sortedNotes.map(note => (
             <li key={note.id} 
-                className={`bg-gray-800 rounded-lg p-2 cursor-pointer hover:bg-gray-700 transition-colors w-[100px] h-[100px] flex flex-col ${
+                className={`bg-gray-800 rounded-lg p-1 cursor-pointer hover:bg-gray-700 transition-colors w-[120px] h-[120px] flex flex-col ${
                   note.id === selectedNoteId ? 'ring-2 ring-blue-500' : ''
                 }`}
                 onClick={() => onNoteSelect(note)}
             >
-              <h3 className="text-sm font-semibold text-white mb-1 truncate">{note.title}</h3>
+              <h3 className="text-xs font-semibold text-white mb-1 truncate">{note.title}</h3>
               <p className="text-gray-400 text-xs flex-grow overflow-hidden">
                 {truncateContent(note.content, 25)}
               </p>
