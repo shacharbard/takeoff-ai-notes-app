@@ -2,11 +2,11 @@ import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
 
 export const notesTable = pgTable("notes", {
   id: uuid("id").defaultRandom().primaryKey(),
-  userId: text("user_id").notNull(),
   title: text("title").notNull(),
   content: text("content").notNull(),
+  userId: text("user_id").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export type InsertNote = typeof notesTable.$inferInsert;

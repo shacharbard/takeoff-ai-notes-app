@@ -46,11 +46,7 @@ export default async function RootLayout({
           className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
           <ClerkProvider>
-            <Providers
-              attribute="class"
-              forcedTheme="dark"
-              disableTransitionOnChange
-            >
+            <Providers attribute="class" disableTransitionOnChange>
               <Header />
               {children}
               <Toaster />

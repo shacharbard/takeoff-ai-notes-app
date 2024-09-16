@@ -1,8 +1,10 @@
 "use server";
 
-import { createNote, deleteNote, getNoteById, getNotesByUserId, updateNote } from "@/db/queries/notes-queries";
-import { InsertNote } from "@/db/schema/notes-schema";
+import { db } from "@/db/db";
+import { createNote, deleteNote, getNoteById, getNotesByUserId } from "@/db/queries/notes-queries";
+import { InsertNote, notesTable } from "@/db/schema/notes-schema";
 import { ActionState } from "@/types";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function createNoteAction(data: InsertNote): Promise<ActionState> {
@@ -15,6 +17,7 @@ export async function createNoteAction(data: InsertNote): Promise<ActionState> {
       data: newNote,
     };
   } catch (error) {
+    console.error("Error creating note:", error);
     return {
       status: "error",
       message: "Failed to create note",
@@ -43,12 +46,18 @@ export async function getNotesByUserIdAction(userId: string): Promise<ActionStat
   }
 }
 
-export async function updateNoteAction(id: string, data: Partial<InsertNote>): Promise<ActionState> {
+export async function updateNoteAction(id: string, note: Partial<InsertNote>): Promise<ActionState> {
   try {
-    const updatedNote = await updateNote(id, data);
+    const updatedNote = await db
+      .update(notesTable)
+      .set({ ...note, updatedAt: new Date() })
+      .where(eq(notesTable.id, id))
+      .returning()
+      .execute();
     revalidatePath("/notes");
-    return { status: "success", message: "Note updated successfully", data: updatedNote };
+    return { status: "success", message: "Note updated successfully", data: updatedNote[0] };
   } catch (error) {
+    console.error("Failed to update note:", error);
     return { status: "error", message: "Failed to update note" };
   }
 }
